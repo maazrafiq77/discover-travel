@@ -6,16 +6,30 @@ require('dotenv').config()
 const app = express()
 
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'https://discovertraveltours.vercel.app',
-    process.env.FRONTEND_URL,
-  ].filter(Boolean),
+  origin: '*',
   credentials: true,
 }))
-
 app.use(express.json())
+
+// Cache mongoose connection for serverless
+let isConnected = false
+
+const connectDB = async () => {
+  if (isConnected) return
+  try {
+    await mongoose.connect(process.env.MONGODB_URI)
+    isConnected = true
+    console.log('MongoDB Connected')
+  } catch (err) {
+    console.log('MongoDB Error:', err.message)
+  }
+}
+
+// Connect before every request
+app.use(async (req, res, next) => {
+  await connectDB()
+  next()
+})
 
 app.use('/api/auth', require('./routes/auth'))
 app.use('/api/tours', require('./routes/tours'))
@@ -28,26 +42,4 @@ app.use('/api/settings', require('./routes/settings'))
 
 app.get('/', (req, res) => res.json({ status: 'Discover Travel API running' }))
 
-
-const PORT = process.env.PORT || 5000
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
-}
-
 module.exports = app
-
-const startServer = async () => {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI)
-    console.log('MongoDB Connected')
-
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`)
-    })
-  } catch (err) {
-    console.error('MongoDB Connection Error:', err.message)
-    process.exit(1)
-  }
-}
-
-startServer()
