@@ -100,11 +100,10 @@ export default function HajjUmrah() {
           {!loading && packages.length > 0 && (
             <div className="pkg-grid">
               {packages.map((pkg, i) => (
-                <article
-                  key={pkg._id}
-                  className={`pkg-card reveal${pkg.isPopular ? ' is-popular' : ''}`}
-                  style={{ transitionDelay: `${i * 60}ms` }}
-                >
+                  <article
+                    key={pkg._id}
+                    className={`pkg-card${pkg.isPopular ? ' is-popular' : ''}`}
+                  >
                   {pkg.isPopular && (
                     <span className="pkg-badge">MOST POPULAR</span>
                   )}

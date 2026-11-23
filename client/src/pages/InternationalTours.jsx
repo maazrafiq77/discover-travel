@@ -103,7 +103,7 @@ export default function InternationalToursPage() {
           {!loading && !error && filtered.length > 0 && (
             <div className="page-grid">
               {filtered.map((t, i) => (
-                <article key={t._id} className="tour-card reveal" style={{ transitionDelay: `${i * 50}ms` }}>
+                <article key={t._id} className="tour-card">
                   <div className="tour-media">
                     <img src={t.image} alt={t.title} loading="lazy" />
                     <div className="tour-shade" />
