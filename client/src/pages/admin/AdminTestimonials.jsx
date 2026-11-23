@@ -51,16 +51,20 @@ export default function AdminTestimonials() {
     setTimeout(() => setSuccess(null), 3000)
   }
 
-  const handleSave = async () => {
+    const handleSave = async () => {
     if (saving) return
     if (!form.name.trim() || !form.text.trim()) {
       setError('Name and review text are required.')
       return
     }
     setSaving(true); setError(null)
+    
+    // We send both 'text' and 'review' to guarantee the backend accepts it
+    const payload = { ...form, review: form.text, content: form.text, isActive: true, rating: Number(form.rating) }
+    
     try {
-      if (editing) await axios.put(`${API_URL}/api/testimonials/${editing}`, form, { headers })
-      else await axios.post(`${API_URL}/api/testimonials`, form, { headers })
+      if (editing) await axios.put(`${API_URL}/api/testimonials/${editing}`, payload, { headers })
+      else await axios.post(`${API_URL}/api/testimonials`, payload, { headers })
       setForm(empty); setEditing(null); setShowForm(false)
       await fetchItems()
       flash(editing ? 'Review updated.' : 'Review added.')
