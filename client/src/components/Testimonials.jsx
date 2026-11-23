@@ -10,70 +10,102 @@ const placeholder = [
 
 export default function Testimonials() {
   const [reviews, setReviews] = useState(placeholder)
+  const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
     axios.get(`${API_URL}/api/testimonials`)
-      .then(r => { if (r.data.length > 0) setReviews(r.data) })
-      .catch(() => {})
+      .then(r => { if (Array.isArray(r.data) && r.data.length > 0) setReviews(r.data) })
+      .catch(() => { /* fallback keeps placeholders */ })
+      .finally(() => setLoaded(true))
   }, [])
 
   return (
-    <section style={{ background: 'var(--bg)', padding: '96px 0' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
-        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#E8622A', textTransform: 'uppercase', display: 'block', marginBottom: 12 }}>Client stories</span>
-        <h2 style={{ fontFamily: 'Lora,serif', fontSize: 'clamp(28px,3.5vw,42px)', fontWeight: 600, color: 'var(--text)', marginBottom: 56 }}>
-          Real travellers.<br />Real journeys.
-        </h2>
+    <section className="section" style={{ background: 'var(--bg)' }}>
+      <div className="container">
+        <div className="reveal">
+          <span className="eyebrow">Client stories</span>
+          <h2 className="h-section" style={{ marginBottom: 32 }}>Real travellers.<br />Real journeys.</h2>
+        </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
-          {reviews.slice(0, 3).map((r, i) => (
-            <div key={r._id} style={{
-              background: 'var(--card-bg)',
-              border: '1px solid var(--border)',
-              borderRadius: 16, padding: 32,
-              position: 'relative', overflow: 'hidden',
-            }}>
-              {/* Quote mark */}
-              <span style={{
-                position: 'absolute', top: 16, right: 20,
-                fontFamily: 'Georgia,serif', fontSize: 80,
-                color: 'rgba(232,98,42,0.08)', lineHeight: 1,
-                userSelect: 'none', pointerEvents: 'none',
-              }}>"</span>
+        <div className="rev-grid">
+          {!loaded && [1,2,3].map(k => (
+            <div key={k} className="skeleton" style={{ height: 240, borderRadius: 16 }} />
+          ))}
 
-              <div style={{ color: '#E8622A', fontSize: 12, letterSpacing: 3, marginBottom: 18 }}>
-                {'★'.repeat(r.rating)}
+          {loaded && reviews.slice(0, 3).map((r, i) => (
+            <article key={r._id || i} className="rev-card reveal" style={{ transitionDelay: `${i * 50}ms` }}>
+              <span className="rev-quote" aria-hidden="true">“</span>
+              <div className="rev-stars" aria-label={`${r.rating} out of 5`}>
+                {'★'.repeat(r.rating || 5)}
               </div>
-              <p style={{
-                fontFamily: 'Lora,serif', fontStyle: 'italic',
-                fontSize: 13, color: 'var(--text2)',
-                lineHeight: 1.8, marginBottom: 24,
-              }}>
-                "{r.text}"
-              </p>
+              <p className="rev-text">"{r.text}"</p>
               {r.textUr && (
-                <p style={{ fontFamily: 'Noto Nastaliq Urdu,serif', direction: 'rtl', color: 'var(--muted)', fontSize: 12, marginBottom: 20 }}>{r.textUr}</p>
+                <p className="rev-urdu" lang="ur" dir="rtl">{r.textUr}</p>
               )}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
-                <div style={{
-                  width: 38, height: 38, background: '#E8622A',
-                  borderRadius: '50%', display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 15,
-                  flexShrink: 0,
-                }}>
-                  {r.name[0]}
+              <footer className="rev-foot">
+                <div className="rev-avatar" aria-hidden="true">
+                  {(r.name || '?').trim().charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>{r.name}</p>
-                  <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>{r.location}</p>
+                  <div className="rev-name">{r.name}</div>
+                  <div className="rev-loc">{r.location}</div>
                 </div>
-              </div>
-            </div>
+              </footer>
+            </article>
           ))}
         </div>
       </div>
+
+      <style>{`
+        .rev-grid{ display:grid; grid-template-columns:1fr; gap:16px; }
+        .rev-card{
+          position:relative;
+          background:var(--card-bg);
+          border:1px solid var(--border);
+          border-radius:16px;
+          padding:26px 22px;
+          overflow:hidden;
+          display:flex; flex-direction:column;
+        }
+        .rev-quote{
+          position:absolute; top:10px; right:16px;
+          font-family:Georgia,serif; font-size:88px; line-height:1;
+          color:color-mix(in srgb, var(--brand) 10%, transparent);
+          pointer-events:none; user-select:none;
+        }
+        .rev-stars{ color:var(--brand); font-size:13px; letter-spacing:3px; margin-bottom:14px; }
+        .rev-text{
+          font-family:var(--font-serif); font-style:italic;
+          font-size:14px; line-height:1.75;
+          color:var(--text2); margin:0 0 18px; flex:1;
+        }
+        .rev-urdu{
+          font-family:var(--font-urdu); font-size:12.5px;
+          color:var(--muted); margin:0 0 16px;
+        }
+        .rev-foot{
+          display:flex; align-items:center; gap:12px;
+          padding-top:16px; border-top:1px solid var(--border);
+          margin-top:auto;
+        }
+        .rev-avatar{
+          width:40px; height:40px; border-radius:50%;
+          background:var(--brand); color:#fff;
+          display:flex; align-items:center; justify-content:center;
+          font-weight:800; font-size:15px; flex-shrink:0;
+        }
+        .rev-name{ font-size:13.5px; font-weight:700; color:var(--text); }
+        .rev-loc{ font-size:11.5px; color:var(--muted); margin-top:2px; }
+
+        @media (min-width:640px){
+          .rev-grid{ grid-template-columns:repeat(2, 1fr); gap:18px; }
+        }
+        @media (min-width:960px){
+          .rev-grid{ grid-template-columns:repeat(3, 1fr); gap:20px; }
+          .rev-card{ padding:32px 28px; }
+          .rev-text{ font-size:14.5px; }
+        }
+      `}</style>
     </section>
   )
 }
-
-

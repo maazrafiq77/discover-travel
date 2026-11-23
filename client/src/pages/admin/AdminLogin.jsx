@@ -1,6 +1,6 @@
 import API_URL from '../../config/api'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
 
 export default function AdminLogin() {
@@ -10,70 +10,162 @@ export default function AdminLogin() {
   const navigate = useNavigate()
 
   const handleLogin = async () => {
+    if (loading) return
+    if (!form.email.trim() || !form.password) {
+      setError('Please enter both email and password.')
+      return
+    }
     setLoading(true)
     setError('')
     try {
       const res = await axios.post(`${API_URL}/api/auth/login`, form)
+      if (!res.data?.token) throw new Error('no token')
       localStorage.setItem('adminToken', res.data.token)
       navigate('/admin')
-    } catch {
-      setError('Invalid email or password')
+    } catch (err) {
+      const msg = err?.response?.data?.message || 'Invalid email or password'
+      setError(msg)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
-    <div style={{
-      minHeight: '100vh', background: 'var(--admin-bg)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontFamily: 'Montserrat,sans-serif', padding: 24,
-    }}>
-      <div style={{
-        width: '100%', maxWidth: 420,
-        background: 'var(--admin-bg2)', borderRadius: 20,
-        border: '1px solid rgba(255,255,255,0.08)',
-        padding: 40,
-        boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
-      }}>
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <img src="/logo.webp" alt="Discover Travel" style={{ width: 72, height: 72, objectFit: 'contain', margin: '0 auto 16px', display: 'block' }} />
-          <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--admin-text)', marginBottom: 4 }}>Admin Panel</h1>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Discover Travel & Tours</p>
+    <div className="login-wrap">
+      <div className="login-card">
+        <div className="login-head">
+          <img src="/logo.webp" alt="Discover Travel" className="login-logo" />
+          <h1 className="login-title">Admin Panel</h1>
+          <p className="login-sub">Discover Travel &amp; Tours</p>
         </div>
 
         {error && (
-          <div style={{ background: 'rgba(232,98,42,0.1)', border: '1px solid rgba(232,98,42,0.3)', borderRadius: 10, padding: '12px 16px', marginBottom: 20, fontSize: 13, color: '#E8622A', fontWeight: 600 }}>
+          <div className="login-error" role="alert">
             ⚠️ {error}
           </div>
         )}
 
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Email Address</label>
+        <div className="login-field">
+          <label className="login-label" htmlFor="admin-email">Email address</label>
           <input
-            type="email" placeholder="admin@email.com"
-            style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '12px 16px', fontSize: 13, color: '#fff', fontFamily: 'Montserrat,sans-serif', outline: 'none' }}
-            value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
+            id="admin-email"
+            type="email"
+            placeholder="admin@email.com"
+            className="login-input"
+            value={form.email}
+            onChange={e => setForm({ ...form, email: e.target.value })}
             onKeyDown={e => e.key === 'Enter' && handleLogin()}
+            autoComplete="email"
+            autoFocus
           />
         </div>
-        <div style={{ marginBottom: 24 }}>
-          <label style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Password</label>
+
+        <div className="login-field">
+          <label className="login-label" htmlFor="admin-password">Password</label>
           <input
-            type="password" placeholder="••••••••"
-            style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '12px 16px', fontSize: 13, color: '#fff', fontFamily: 'Montserrat,sans-serif', outline: 'none' }}
-            value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
+            id="admin-password"
+            type="password"
+            placeholder="••••••••"
+            className="login-input"
+            value={form.password}
+            onChange={e => setForm({ ...form, password: e.target.value })}
             onKeyDown={e => e.key === 'Enter' && handleLogin()}
+            autoComplete="current-password"
           />
         </div>
+
         <button
-          onClick={handleLogin} disabled={loading}
-          style={{ width: '100%', background: '#E8622A', color: '#fff', border: 'none', borderRadius: 10, padding: '14px', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', transition: 'all 0.2s', opacity: loading ? 0.7 : 1 }}
+          className="login-btn"
+          onClick={handleLogin}
+          disabled={loading}
         >
-          {loading ? 'Logging in...' : 'Login to Admin Panel'}
+          {loading ? 'Logging in…' : 'Login to Admin Panel'}
         </button>
+
+        <Link to="/" className="login-back">← Back to website</Link>
       </div>
+
+      <style>{`
+        .login-wrap {
+          min-height: 100vh;
+          background: var(--admin-bg);
+          display: flex; align-items: center; justify-content: center;
+          padding: 20px;
+          font-family: var(--font-sans);
+        }
+        .login-card {
+          width: 100%; max-width: 420px;
+          background: var(--admin-bg2);
+          border: 1px solid var(--admin-border);
+          border-radius: 20px;
+          padding: 28px 22px;
+          box-shadow: 0 32px 80px rgba(0, 0, 0, 0.4);
+        }
+        .login-head { text-align: center; margin-bottom: 24px; }
+        .login-logo {
+          width: 64px; height: 64px; object-fit: contain;
+          margin: 0 auto 12px; display: block;
+        }
+        .login-title {
+          font-size: 20px; font-weight: 800; color: var(--admin-text);
+          margin: 0 0 4px;
+        }
+        .login-sub { font-size: 12.5px; color: var(--admin-muted); margin: 0; }
+        .login-error {
+          background: rgba(232, 98, 42, 0.1);
+          border: 1px solid rgba(232, 98, 42, 0.3);
+          border-radius: 10px;
+          padding: 11px 14px;
+          margin-bottom: 16px;
+          font-size: 13px; color: var(--brand); font-weight: 600;
+        }
+        .login-field { margin-bottom: 14px; }
+        .login-label {
+          display: block;
+          font-size: 10px; font-weight: 700;
+          letter-spacing: 1.5px; text-transform: uppercase;
+          color: var(--admin-muted); margin-bottom: 6px;
+        }
+        .login-input {
+          width: 100%;
+          min-height: 46px;
+          padding: 11px 14px;
+          background: var(--admin-inp);
+          border: 1.5px solid var(--admin-border);
+          border-radius: 10px;
+          font-size: 14px;
+          color: var(--admin-inp-text);
+          font-family: var(--font-sans);
+          outline: none;
+          transition: border-color .2s;
+        }
+        .login-input:focus { border-color: var(--brand); }
+        .login-btn {
+          width: 100%;
+          min-height: 48px;
+          margin-top: 8px;
+          background: var(--brand);
+          border: 0; border-radius: 10px;
+          color: #fff; font-size: 13.5px; font-weight: 700;
+          cursor: pointer;
+          font-family: var(--font-sans);
+          transition: background .2s, transform .15s;
+        }
+        .login-btn:hover:not(:disabled) { background: var(--brand-2); }
+        .login-btn:active:not(:disabled) { transform: scale(0.98); }
+        .login-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        .login-back {
+          display: block; text-align: center;
+          margin-top: 16px;
+          font-size: 12px;
+          color: var(--admin-muted);
+          text-decoration: none;
+        }
+        .login-back:hover { color: var(--brand); }
+        @media (min-width: 480px) {
+          .login-card { padding: 36px 32px; }
+        }
+      `}</style>
     </div>
   )
 }
-
-

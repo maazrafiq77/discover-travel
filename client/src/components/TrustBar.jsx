@@ -7,27 +7,69 @@ const stats = [
 
 export default function TrustBar() {
   return (
-    <section style={{
-      background: 'var(--bg3)',
-      borderTop: '1px solid var(--border)',
-      borderBottom: '1px solid var(--border)',
-    }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)' }}>
-          {stats.map((s, i) => (
-            <div key={s.label} style={{
-              textAlign: 'center',
-              padding: '36px 16px',
-              borderRight: i < 3 ? '1px solid var(--border)' : 'none',
-            }}>
-              <div style={{ fontFamily: 'Lora,serif', fontSize: 44, fontWeight: 600, color: '#E8622A', lineHeight: 1 }}>{s.number}</div>
-              <div style={{ color: 'var(--text2)', fontSize: 12, fontWeight: 600, marginTop: 6 }}>{s.label}</div>
-              <div style={{ fontFamily: 'Noto Nastaliq Urdu,serif', direction: 'rtl', color: 'rgba(232,98,42,0.5)', fontSize: 11, marginTop: 3 }}>{s.ur}</div>
+    <section className="trustbar">
+      <div className="container">
+        <div className="trust-grid reveal">
+          {stats.map((s) => (
+            <div key={s.label} className="trust-cell">
+              <div className="trust-num">{s.number}</div>
+              <div className="trust-label">{s.label}</div>
+              <div className="trust-urdu" lang="ur" dir="rtl">{s.ur}</div>
             </div>
           ))}
         </div>
       </div>
+
+      <style>{`
+        .trustbar{
+          background:var(--bg3);
+          border-top:1px solid var(--border);
+          border-bottom:1px solid var(--border);
+        }
+        .trust-grid{
+          display:grid;
+          grid-template-columns:repeat(2, 1fr);
+          gap:0;
+        }
+        .trust-cell{
+          text-align:center;
+          padding:26px 10px;
+          border-right:1px solid var(--border);
+          border-bottom:1px solid var(--border);
+        }
+        .trust-cell:nth-child(2n){ border-right:none; }
+        .trust-cell:nth-child(n+3){ border-bottom:none; }
+        .trust-num{
+          font-family:var(--font-serif);
+          font-size:32px; font-weight:600;
+          color:var(--brand); line-height:1;
+        }
+        .trust-label{
+          color:var(--text2); font-size:11px; font-weight:700;
+          margin-top:6px; letter-spacing:0.2px;
+        }
+        .trust-urdu{
+          font-family:var(--font-urdu); font-size:10.5px;
+          color:color-mix(in srgb, var(--brand) 55%, transparent);
+          margin-top:4px;
+        }
+        @media (min-width:640px){
+          .trust-num{ font-size:40px; }
+          .trust-label{ font-size:12px; }
+          .trust-urdu{ font-size:11px; }
+        }
+        @media (min-width:960px){
+          .trust-grid{ grid-template-columns:repeat(4, 1fr); }
+          .trust-cell{
+            padding:38px 16px;
+            border-bottom:none;
+            border-right:1px solid var(--border);
+          }
+          .trust-cell:last-child{ border-right:none; }
+          .trust-num{ font-size:48px; }
+          .trust-label{ font-size:12.5px; margin-top:8px; }
+        }
+      `}</style>
     </section>
   )
 }
-

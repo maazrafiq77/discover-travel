@@ -3,87 +3,209 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { Link } from 'react-router-dom'
 
-const StatCard = ({ label, value, icon, color, path }) => (
-  <Link to={path} style={{ textDecoration: 'none' }}>
-    <div style={{
-      background: 'var(--admin-bg2)', border: '1px solid rgba(255,255,255,0.06)',
-      borderRadius: 16, padding: 24, transition: 'all 0.2s', cursor: 'pointer',
-    }}
-      onMouseEnter={e => e.currentTarget.style.borderColor = color + '50'}
-      onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-        <div style={{ width: 44, height: 44, background: color + '20', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>{icon}</div>
-        <span style={{ fontSize: 11, color: color, fontWeight: 700, background: color + '15', padding: '4px 10px', borderRadius: 20 }}>View all →</span>
-      </div>
-      <p style={{ fontSize: 32, fontWeight: 800, color: 'var(--admin-text)', marginBottom: 4 }}>{value}</p>
-      <p style={{ fontSize: 12, color: 'var(--admin-muted)', fontWeight: 500 }}>{label}</p>
-    </div>
-  </Link>
-)
+const CARDS = [
+  { key: 'tours', label: 'Total Tours', icon: '✈️', color: '#0EA5E9', path: '/admin/tours' },
+  { key: 'hajj', label: 'Hajj & Umrah Packages', icon: '🕋', color: '#E8622A', path: '/admin/hajj' },
+  { key: 'visa', label: 'Visa Countries', icon: '📋', color: '#10B981', path: '/admin/visa' },
+  { key: 'enquiries', label: 'Enquiries', icon: '📩', color: '#8B5CF6', path: '/admin/enquiries' },
+  { key: 'testimonials', label: 'Testimonials', icon: '⭐', color: '#F59E0B', path: '/admin/testimonials' },
+  { key: 'chats', label: 'Chat Sessions', icon: '💬', color: '#EC4899', path: '/admin/chats' },
+]
+
+const QUICK = [
+  { label: '+ Add Tour', path: '/admin/tours', color: '#0EA5E9' },
+  { label: '+ Add Hajj Package', path: '/admin/hajj', color: '#E8622A' },
+  { label: '+ Add Visa Country', path: '/admin/visa', color: '#10B981' },
+  { label: '+ Add Testimonial', path: '/admin/testimonials', color: '#F59E0B' },
+]
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({ tours: 0, enquiries: 0, chats: 0, hajj: 0, visa: 0, testimonials: 0 })
+  const [stats, setStats] = useState({ tours: 0, hajj: 0, visa: 0, enquiries: 0, testimonials: 0, chats: 0 })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken')
     const h = { Authorization: `Bearer ${token}` }
+
+    const safe = (url, withAuth = false) =>
+      axios.get(url, withAuth ? { headers: h } : {})
+        .then(r => Array.isArray(r.data) ? r.data.length : 0)
+        .catch(() => 0)
+
     Promise.all([
-      axios.get(`${API_URL}/api/tours`, { headers: h }),
-      axios.get(`${API_URL}/api/enquiries`, { headers: h }),
-      axios.get(`${API_URL}/api/chat`, { headers: h }),
-      axios.get(`${API_URL}/api/hajj`),
-      axios.get(`${API_URL}/api/visa`),
-      axios.get(`${API_URL}/api/testimonials`),
-    ]).then(([tours, enq, chats, hajj, visa, testi]) => {
-      setStats({ tours: tours.data.length, enquiries: enq.data.length, chats: chats.data.length, hajj: hajj.data.length, visa: visa.data.length, testimonials: testi.data.length })
-    }).catch(() => {})
+      safe(`${API_URL}/api/tours`),
+      safe(`${API_URL}/api/hajj`),
+      safe(`${API_URL}/api/visa`),
+      safe(`${API_URL}/api/testimonials`),
+      safe(`${API_URL}/api/enquiries`, true),
+      safe(`${API_URL}/api/chat`, true),
+    ])
+      .then(([tours, hajj, visa, testimonials, enquiries, chats]) => {
+        setStats({ tours, hajj, visa, testimonials, enquiries, chats })
+      })
+      .catch(() => setError('Could not load dashboard stats.'))
+      .finally(() => setLoading(false))
   }, [])
 
   return (
-    <div>
-      <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--admin-text)', marginBottom: 4 }}>Dashboard</h1>
-        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Welcome back! Here's what's happening.</p>
-      </div>
+    <div className="dash">
+      <header className="dash-head">
+        <h1 className="dash-title">Dashboard</h1>
+        <p className="dash-sub">Welcome back! Here's what's happening.</p>
+      </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginBottom: 24 }}>
-        <StatCard label="Total Tours" value={stats.tours} icon="✈️" color="#0ea5e9" path="/admin/tours" />
-        <StatCard label="Hajj & Umrah Packages" value={stats.hajj} icon="🕋" color="#E8622A" path="/admin/hajj" />
-        <StatCard label="Visa Countries" value={stats.visa} icon="📋" color="#10b981" path="/admin/visa" />
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginBottom: 32 }}>
-        <StatCard label="Enquiries" value={stats.enquiries} icon="📩" color="#8b5cf6" path="/admin/enquiries" />
-        <StatCard label="Testimonials" value={stats.testimonials} icon="⭐" color="#f59e0b" path="/admin/testimonials" />
-        <StatCard label="Chat Sessions" value={stats.chats} icon="💬" color="#ec4899" path="/admin/chats" />
-      </div>
-
-      {/* Quick actions */}
-      <div style={{ background: 'var(--admin-bg2)', border: '1px solid var(--admin-border)', borderRadius: 16, padding: 24 }}>
-        <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--admin-text)', marginBottom: 16 }}>Quick Actions</h2>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          {[
-            { label: '+ Add Tour', path: '/admin/tours', color: '#0ea5e9' },
-            { label: '+ Add Hajj Package', path: '/admin/hajj', color: '#E8622A' },
-            { label: '+ Add Visa Country', path: '/admin/visa', color: '#10b981' },
-            { label: '+ Add Testimonial', path: '/admin/testimonials', color: '#f59e0b' },
-          ].map(a => (
-            <Link key={a.label} to={a.path} style={{
-              textDecoration: 'none', background: a.color + '15',
-              border: `1px solid ${a.color}30`, color: a.color,
-              padding: '10px 18px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-              transition: 'all 0.2s',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.background = a.color; e.currentTarget.style.color = '#fff' }}
-              onMouseLeave={e => { e.currentTarget.style.background = a.color + '15'; e.currentTarget.style.color = a.color }}
-            >
-              {a.label}
-            </Link>
+      {loading && (
+        <div className="dash-grid">
+          {CARDS.map(c => (
+            <div key={c.key} className="skeleton" style={{ height: 140, borderRadius: 16 }} />
           ))}
         </div>
-      </div>
+      )}
+
+      {!loading && error && (
+        <div className="dash-empty">{error}</div>
+      )}
+
+      {!loading && !error && (
+        <>
+          <div className="dash-grid">
+            {CARDS.map(card => (
+              <Link
+                key={card.key}
+                to={card.path}
+                className="dash-card"
+                style={{ '--card-color': card.color }}
+              >
+                <div className="dash-card-top">
+                  <div className="dash-card-icon">{card.icon}</div>
+                  <span className="dash-card-cta">View all →</span>
+                </div>
+                <div className="dash-card-value">{stats[card.key] ?? 0}</div>
+                <div className="dash-card-label">{card.label}</div>
+              </Link>
+            ))}
+          </div>
+
+          <section className="dash-quick">
+            <h2 className="dash-quick-title">Quick actions</h2>
+            <div className="dash-quick-row">
+              {QUICK.map(a => (
+                <Link
+                  key={a.label}
+                  to={a.path}
+                  className="dash-quick-btn"
+                  style={{ '--qc': a.color }}
+                >
+                  {a.label}
+                </Link>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
+
+      <style>{`
+        .dash { max-width: 1200px; margin: 0 auto; }
+        .dash-head { margin-bottom: 22px; }
+        .dash-title {
+          font-size: 22px; font-weight: 800;
+          color: var(--admin-text); margin: 0 0 4px;
+        }
+        .dash-sub { font-size: 13px; color: var(--admin-muted); margin: 0; }
+
+        .dash-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+        .dash-card {
+          display: block;
+          background: var(--admin-bg2);
+          border: 1px solid var(--admin-border);
+          border-radius: 16px;
+          padding: 20px;
+          text-decoration: none;
+          transition: border-color .2s, transform .2s, box-shadow .2s;
+        }
+        .dash-card:hover {
+          border-color: var(--card-color);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+        .dash-card-top {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 14px;
+        }
+        .dash-card-icon {
+          width: 44px; height: 44px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 20px;
+          border-radius: 12px;
+          background: color-mix(in srgb, var(--card-color) 15%, transparent);
+        }
+        .dash-card-cta {
+          font-size: 11px; font-weight: 700;
+          color: var(--card-color);
+          background: color-mix(in srgb, var(--card-color) 12%, transparent);
+          padding: 4px 10px; border-radius: 999px;
+        }
+        .dash-card-value {
+          font-size: 32px; font-weight: 800;
+          color: var(--admin-text); line-height: 1; margin-bottom: 6px;
+        }
+        .dash-card-label {
+          font-size: 12.5px; font-weight: 500; color: var(--admin-muted);
+        }
+
+        .dash-quick {
+          background: var(--admin-bg2);
+          border: 1px solid var(--admin-border);
+          border-radius: 16px;
+          padding: 20px;
+        }
+        .dash-quick-title {
+          font-size: 14px; font-weight: 700;
+          color: var(--admin-text); margin: 0 0 14px;
+        }
+        .dash-quick-row {
+          display: flex; flex-wrap: wrap; gap: 10px;
+        }
+        .dash-quick-btn {
+          padding: 10px 16px;
+          border-radius: 10px;
+          font-size: 12.5px; font-weight: 700;
+          text-decoration: none;
+          color: var(--qc);
+          background: color-mix(in srgb, var(--qc) 12%, transparent);
+          border: 1px solid color-mix(in srgb, var(--qc) 30%, transparent);
+          transition: all .2s;
+        }
+        .dash-quick-btn:hover {
+          background: var(--qc); color: #fff;
+        }
+
+        .dash-empty {
+          background: var(--admin-bg2);
+          border: 1px solid var(--admin-border);
+          border-radius: 16px;
+          padding: 40px 20px;
+          text-align: center;
+          color: var(--admin-muted);
+          font-size: 13px;
+        }
+
+        @media (min-width: 640px) {
+          .dash-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (min-width: 1024px) {
+          .dash-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+          .dash-title { font-size: 24px; }
+        }
+      `}</style>
     </div>
   )
 }
-
-

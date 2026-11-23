@@ -6,52 +6,61 @@ const items = [
 
 export default function Ticker() {
   return (
-    <div style={{
-      background: '#E8622A',
-      padding: '11px 0',
-      overflow: 'hidden',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 24,
-    }}>
-      <div style={{
-        flexShrink: 0,
-        fontSize: 10, fontWeight: 800,
-        letterSpacing: 2, color: '#fff',
-        textTransform: 'uppercase',
-        padding: '0 24px',
-        whiteSpace: 'nowrap',
-        borderRight: '1px solid rgba(255,255,255,0.3)',
-        paddingRight: 24,
-      }}>
-        We cover
-      </div>
-      <div style={{ overflow: 'hidden', flex: 1 }}>
-        <div style={{
-          display: 'flex',
-          gap: 48,
-          animation: 'ticker 25s linear infinite',
-          width: 'max-content',
-        }}>
+    <div className="ticker">
+      <span className="ticker-label">We cover</span>
+      <div className="ticker-viewport">
+        <div className="ticker-track">
           {[...items, ...items].map((item, i) => (
-            <span key={i} style={{
-              fontSize: 12, color: 'rgba(255,255,255,0.85)',
-              whiteSpace: 'nowrap',
-              display: 'flex', alignItems: 'center', gap: 8,
-            }}>
-              <span style={{ width: 4, height: 4, background: 'rgba(255,255,255,0.5)', borderRadius: '50%', display: 'inline-block' }} />
+            <span key={i} className="ticker-item">
+              <i className="ticker-dot" aria-hidden="true" />
               {item}
             </span>
           ))}
         </div>
       </div>
       <style>{`
-        @keyframes ticker {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+        .ticker{
+          display:flex; align-items:center; gap:16px;
+          background:var(--brand); padding:11px 0;
+          overflow:hidden;
+        }
+        .ticker-label{
+          flex-shrink:0;
+          padding:0 16px;
+          border-right:1px solid rgba(255,255,255,.28);
+          font-size:10px; font-weight:800; letter-spacing:2px;
+          color:#fff; text-transform:uppercase; white-space:nowrap;
+        }
+        .ticker-viewport{ overflow:hidden; flex:1; }
+        .ticker-track{
+          display:flex; gap:36px;
+          width:max-content;
+          animation:ticker-scroll 32s linear infinite;
+        }
+        .ticker:hover .ticker-track{ animation-play-state:paused; }
+        .ticker-item{
+          display:flex; align-items:center; gap:8px;
+          font-size:12px; color:rgba(255,255,255,.9);
+          white-space:nowrap;
+        }
+        .ticker-dot{
+          display:inline-block;
+          width:4px; height:4px; border-radius:50%;
+          background:rgba(255,255,255,.55);
+        }
+        @keyframes ticker-scroll{
+          0%{ transform:translateX(0); }
+          100%{ transform:translateX(-50%); }
+        }
+        @media (prefers-reduced-motion: reduce){
+          .ticker-track{ animation:none; }
+        }
+        @media (min-width:768px){
+          .ticker{ gap:24px; }
+          .ticker-label{ padding:0 24px; font-size:11px; }
+          .ticker-item{ font-size:12.5px; gap:8px; }
         }
       `}</style>
     </div>
   )
 }
-

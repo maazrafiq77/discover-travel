@@ -10,7 +10,7 @@ import CtaBanner from '../components/CtaBanner'
 
 export default function Home() {
   return (
-    <div style={{ paddingTop: 68 }}>
+    <>
       <Hero />
       <Ticker />
       <TrustBar />
@@ -20,7 +20,6 @@ export default function Home() {
       <WhyChooseUs />
       <Testimonials />
       <CtaBanner />
-    </div>
+    </>
   )
 }
-

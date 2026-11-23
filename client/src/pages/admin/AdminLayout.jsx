@@ -16,7 +16,7 @@ const links = [
 export default function AdminLayout() {
   const navigate = useNavigate()
   const location = useLocation()
-  const [collapsed, setCollapsed] = useState(false)
+  const [open, setOpen] = useState(false)
   const { dark, setDark } = useTheme()
 
   useEffect(() => {
@@ -24,179 +24,297 @@ export default function AdminLayout() {
     if (!token) navigate('/admin/login')
   }, [navigate])
 
+  // Close drawer on route change
+  useEffect(() => { setOpen(false) }, [location.pathname])
+
+  // Lock scroll while drawer open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden'
+      return () => { document.body.style.overflow = '' }
+    }
+  }, [open])
+
   const logout = () => {
     localStorage.removeItem('adminToken')
     navigate('/admin/login')
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--admin-bg)', fontFamily: 'Montserrat,sans-serif' }}>
+    <div className="admin-shell">
+      {/* Mobile top bar */}
+      <header className="admin-topbar">
+        <button
+          className="admin-menu-btn"
+          onClick={() => setOpen(true)}
+          aria-label="Open admin menu"
+          aria-expanded={open}
+        >
+          <span /><span /><span />
+        </button>
+        <Link to="/admin" className="admin-brand">
+          <span className="admin-brand-logo">
+            <img src="/logo.webp" alt="" />
+          </span>
+          <span className="admin-brand-text">
+            Discover <strong>Admin</strong>
+          </span>
+        </Link>
+        <button
+          className="admin-icon-btn"
+          onClick={() => setDark(!dark)}
+          aria-label="Toggle theme"
+        >
+          {dark ? '☀' : '☾'}
+        </button>
+      </header>
 
-      {/* Sidebar */}
-      <aside style={{
-        width: collapsed ? 72 : 240,
-        background: 'var(--admin-bg2)',
-        borderRight: '1px solid var(--admin-border)',
-        display: 'flex', flexDirection: 'column',
-        transition: 'width 0.3s',
-        flexShrink: 0,
-        position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 100,
-      }}>
-        {/* Logo */}
-        <div style={{
-          padding: collapsed ? '20px 16px' : '24px 20px',
-          borderBottom: '1px solid var(--admin-border)',
-          display: 'flex', alignItems: 'center', gap: 12, minHeight: 72,
-        }}>
-           <div
-    style={{
-      width: 49,
-      height: 49,
-      borderRadius: '50%',
-      background: '#fff',
-      border: '2px solid rgba(232, 98, 42, 0.85)',
-      padding: 3,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      overflow: 'hidden',
-      boxShadow: '0 0 12px rgba(232, 98, 42, 0.18)',
-    }}
-  >
-    <img
-      src="/logo.webp"
-      alt="Discover Travel"
-      style={{
-        width: '100%',
-        height: '100%',
-        objectFit: 'contain',
-        borderRadius: '50%',
-      }}
-    />
-  </div>
-          {!collapsed && (
-            <div>
-              <p style={{ fontSize: 13, fontWeight: 800, color: 'var(--admin-text)', lineHeight: 1.2 }}>
-                Discover <span style={{ color: '#E8622A' }}>Travel</span>
-              </p>
-              <p style={{ fontSize: 10, color: 'var(--admin-muted)', marginTop: 2 }}>Admin Panel</p>
-            </div>
-          )}
+      {/* Sidebar (mobile drawer + desktop rail) */}
+      <aside className={`admin-side${open ? ' is-open' : ''}`}>
+        <div className="admin-side-head">
+          <Link to="/admin" className="admin-brand" onClick={() => setOpen(false)}>
+            <span className="admin-brand-logo">
+              <img src="/logo.webp" alt="" />
+            </span>
+            <span className="admin-brand-text">
+              Discover <strong>Travel</strong>
+              <small>Admin Panel</small>
+            </span>
+          </Link>
+          <button
+            className="admin-side-close"
+            onClick={() => setOpen(false)}
+            aria-label="Close menu"
+          >
+            ✕
+          </button>
         </div>
 
-        {/* Nav links */}
-        <nav style={{ flex: 1, padding: '12px 10px', overflowY: 'auto' }}>
-          {links.map(l => {
+        <nav className="admin-nav" aria-label="Admin navigation">
+          {links.map((l) => {
             const active = location.pathname === l.path
             return (
               <Link
-                key={l.label}
+                key={l.path}
                 to={l.path}
-                title={collapsed ? l.label : ''}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 12,
-                  padding: collapsed ? '12px' : '11px 14px',
-                  borderRadius: 10, textDecoration: 'none',
-                  marginBottom: 2, transition: 'all 0.2s',
-                  background: active ? 'rgba(232,98,42,0.15)' : 'transparent',
-                  border: `1px solid ${active ? 'rgba(232,98,42,0.3)' : 'transparent'}`,
-                  justifyContent: collapsed ? 'center' : 'flex-start',
-                }}
+                onClick={() => setOpen(false)}
+                className={`admin-nav-item${active ? ' is-active' : ''}`}
               >
-                <span style={{ fontSize: 18, flexShrink: 0 }}>{l.icon}</span>
-                {!collapsed && (
-                  <span style={{ fontSize: 13, fontWeight: 600, color: active ? '#E8622A' : 'var(--admin-muted)' }}>
-                    {l.label}
-                  </span>
-                )}
+                <span className="admin-nav-icon">{l.icon}</span>
+                <span className="admin-nav-label">{l.label}</span>
               </Link>
             )
           })}
         </nav>
 
-       <div style={{ padding: '12px 10px', borderTop: '1px solid var(--admin-border)', display: 'flex', flexDirection: 'column', gap: 6 }}>
-
-  {/* Theme toggle */}
-  <button
-    onClick={() => setDark(!dark)}
-    style={{
-      width: '100%', background: dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-      border: `1px solid var(--admin-border)`,
-      borderRadius: 10, padding: '10px 14px',
-      color: 'var(--admin-muted)',
-      cursor: 'pointer', fontFamily: 'Montserrat,sans-serif',
-      display: 'flex', alignItems: 'center',
-      justifyContent: collapsed ? 'center' : 'flex-start',
-      gap: 10, transition: 'all 0.2s',
-    }}
-    onMouseEnter={e => e.currentTarget.style.borderColor = '#E8622A'}
-    onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--admin-border)'}
-  >
-    <span style={{ fontSize: 16, flexShrink: 0 }}>{dark ? '☀️' : '🌙'}</span>
-    {!collapsed && (
-      <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--admin-text)' }}>
-        {dark ? 'Light Mode' : 'Dark Mode'}
-      </span>
-    )}
-  </button>
-
-  {/* Collapse */}
-  <button
-    onClick={() => setCollapsed(!collapsed)}
-    style={{
-      width: '100%',
-      background: dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-      border: `1px solid var(--admin-border)`,
-      borderRadius: 10, padding: '10px 14px',
-      color: 'var(--admin-muted)',
-      cursor: 'pointer', fontFamily: 'Montserrat,sans-serif',
-      display: 'flex', alignItems: 'center',
-      justifyContent: collapsed ? 'center' : 'flex-start',
-      gap: 10, transition: 'all 0.2s',
-    }}
-    onMouseEnter={e => e.currentTarget.style.borderColor = '#E8622A'}
-    onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--admin-border)'}
-  >
-    <span style={{ fontSize: 14, flexShrink: 0 }}>{collapsed ? '→' : '←'}</span>
-    {!collapsed && <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--admin-text)' }}>Collapse</span>}
-  </button>
-
-  {/* Logout */}
-  <button
-    onClick={logout}
-    style={{
-      width: '100%',
-      background: 'rgba(232,98,42,0.1)',
-      border: '1px solid rgba(232,98,42,0.25)',
-      borderRadius: 10, padding: '11px 14px', color: '#E8622A',
-      cursor: 'pointer', fontSize: 12, fontWeight: 700,
-      fontFamily: 'Montserrat,sans-serif', transition: 'all 0.2s',
-      display: 'flex', alignItems: 'center',
-      justifyContent: collapsed ? 'center' : 'flex-start',
-      gap: 10,
-    }}
-    onMouseEnter={e => { e.currentTarget.style.background = '#E8622A'; e.currentTarget.style.color = '#fff' }}
-    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(232,98,42,0.1)'; e.currentTarget.style.color = '#E8622A' }}
-  >
-    <span style={{ fontSize: 16, flexShrink: 0 }}>🚪</span>
-    {!collapsed && <span>Logout</span>}
-  </button>
-
-</div>
+        <div className="admin-side-foot">
+          <button className="admin-foot-btn" onClick={() => setDark(!dark)}>
+            <span>{dark ? '☀️' : '🌙'}</span>
+            <span>{dark ? 'Light Mode' : 'Dark Mode'}</span>
+          </button>
+          <button className="admin-foot-btn admin-logout" onClick={logout}>
+            <span>🚪</span>
+            <span>Logout</span>
+          </button>
+        </div>
       </aside>
 
-      {/* Main content */}
-      <main style={{
-        flex: 1,
-        marginLeft: collapsed ? 72 : 240,
-        transition: 'margin-left 0.3s',
-        padding: 32,
-        minHeight: '100vh',
-        background: 'var(--admin-bg)',
-      }}>
+      {open && (
+        <button
+          className="admin-backdrop"
+          onClick={() => setOpen(false)}
+          aria-label="Close menu"
+        />
+      )}
+
+      <main className="admin-main">
         <Outlet />
       </main>
+
+      <style>{`
+        .admin-shell {
+          min-height: 100vh;
+          background: var(--admin-bg);
+          color: var(--admin-text);
+          font-family: var(--font-sans);
+        }
+
+        /* Topbar (mobile only) */
+        .admin-topbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          height: 60px;
+          padding: 0 14px;
+          background: var(--admin-bg2);
+          border-bottom: 1px solid var(--admin-border);
+          position: sticky; top: 0; z-index: 40;
+        }
+        .admin-menu-btn {
+          width: 42px; height: 42px;
+          border-radius: 10px;
+          background: transparent;
+          border: 1px solid var(--admin-border);
+          display: flex; flex-direction: column;
+          justify-content: center; align-items: center;
+          gap: 4px; cursor: pointer;
+        }
+        .admin-menu-btn span {
+          display: block;
+          width: 18px; height: 2px;
+          background: var(--admin-text);
+          border-radius: 2px;
+        }
+        .admin-icon-btn {
+          width: 42px; height: 42px;
+          border-radius: 10px;
+          background: transparent;
+          border: 1px solid var(--admin-border);
+          color: var(--admin-text);
+          font-size: 17px;
+          cursor: pointer;
+        }
+
+        /* Brand */
+        .admin-brand {
+          display: flex; align-items: center; gap: 10px;
+          text-decoration: none; color: var(--admin-text);
+          min-width: 0;
+        }
+        .admin-brand-logo {
+          width: 38px; height: 38px; flex: 0 0 38px;
+          border-radius: 50%; background: #fff;
+          border: 2px solid var(--brand);
+          padding: 3px; overflow: hidden;
+          display: flex; align-items: center; justify-content: center;
+        }
+        .admin-brand-logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+        .admin-brand-text {
+          font-size: 13px; font-weight: 800;
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .admin-brand-text strong { color: var(--brand); }
+        .admin-brand-text small {
+          display: block; font-size: 10px; font-weight: 500;
+          color: var(--admin-muted); margin-top: 1px;
+        }
+
+        /* Sidebar */
+        .admin-side {
+          position: fixed;
+          top: 0; left: 0; bottom: 0;
+          width: 260px;
+          background: var(--admin-bg2);
+          border-right: 1px solid var(--admin-border);
+          display: flex; flex-direction: column;
+          transform: translateX(-100%);
+          transition: transform .28s var(--ease);
+          z-index: 60;
+        }
+        .admin-side.is-open { transform: translateX(0); }
+        .admin-side-head {
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 16px 14px;
+          border-bottom: 1px solid var(--admin-border);
+        }
+        .admin-side-close {
+          width: 34px; height: 34px;
+          background: transparent;
+          border: 1px solid var(--admin-border);
+          border-radius: 8px;
+          color: var(--admin-muted);
+          font-size: 15px;
+          cursor: pointer;
+        }
+
+        .admin-nav {
+          flex: 1;
+          overflow-y: auto;
+          padding: 12px 10px;
+        }
+        .admin-nav-item {
+          display: flex; align-items: center; gap: 12px;
+          min-height: 46px;
+          padding: 10px 14px;
+          border-radius: 10px;
+          margin-bottom: 2px;
+          text-decoration: none;
+          color: var(--admin-muted);
+          font-size: 13.5px; font-weight: 600;
+          transition: background .2s, color .2s;
+        }
+        .admin-nav-item:hover {
+          background: rgba(232, 98, 42, 0.08);
+          color: var(--admin-text);
+        }
+        .admin-nav-item.is-active {
+          background: rgba(232, 98, 42, 0.14);
+          color: var(--brand);
+          border: 1px solid rgba(232, 98, 42, 0.28);
+        }
+        .admin-nav-icon { font-size: 17px; }
+
+        .admin-side-foot {
+          padding: 12px 10px;
+          border-top: 1px solid var(--admin-border);
+          display: flex; flex-direction: column; gap: 6px;
+        }
+        .admin-foot-btn {
+          width: 100%;
+          min-height: 42px;
+          padding: 9px 14px;
+          border-radius: 10px;
+          background: transparent;
+          border: 1px solid var(--admin-border);
+          color: var(--admin-text);
+          font-size: 12.5px;
+          font-weight: 600;
+          display: flex; align-items: center; gap: 10px;
+          cursor: pointer;
+          transition: border-color .2s, background .2s;
+          font-family: var(--font-sans);
+          text-align: left;
+        }
+        .admin-foot-btn:hover { border-color: var(--brand); }
+        .admin-foot-btn.admin-logout {
+          color: var(--brand);
+          background: rgba(232, 98, 42, 0.1);
+          border-color: rgba(232, 98, 42, 0.28);
+        }
+        .admin-foot-btn.admin-logout:hover { background: var(--brand); color: #fff; }
+
+        .admin-backdrop {
+          position: fixed; inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          border: 0; width: 100%;
+          z-index: 55;
+          cursor: pointer;
+        }
+
+        /* Main */
+        .admin-main {
+          padding: 18px 14px 40px;
+          min-height: calc(100vh - 60px);
+        }
+
+        /* Desktop */
+        @media (min-width: 1024px) {
+          .admin-topbar { display: none; }
+          .admin-side {
+            transform: none;
+            width: 240px;
+            position: fixed;
+          }
+          .admin-side-close { display: none; }
+          .admin-backdrop { display: none; }
+          .admin-main {
+            margin-left: 240px;
+            padding: 32px;
+            min-height: 100vh;
+          }
+        }
+      `}</style>
     </div>
   )
 }
-
