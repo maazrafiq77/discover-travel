@@ -33,7 +33,7 @@ export default function Testimonials() {
           ))}
 
           {loaded && reviews.slice(0, 3).map((r, i) => (
-            <article key={r._id || i} className="rev-card reveal" style={{ transitionDelay: `${i * 50}ms` }}>
+            <article key={r._id || i} className="rev-card">
               <span className="rev-quote" aria-hidden="true">“</span>
               <div className="rev-stars" aria-label={`${r.rating} out of 5`}>
                 {'★'.repeat(r.rating || 5)}
