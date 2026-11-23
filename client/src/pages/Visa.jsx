@@ -97,7 +97,7 @@ export default function Visa() {
           {!loading && countries.length > 0 && (
             <div className="visa-grid">
               {countries.map((c, i) => (
-                <article key={c._id} className="visa-card reveal" style={{ transitionDelay: `${i * 40}ms` }}>
+                  <article key={c._id} className="visa-card">
                   <div className="visa-head-row">
                     <span className="visa-flag" aria-hidden="true">{c.flag}</span>
                     <div>
