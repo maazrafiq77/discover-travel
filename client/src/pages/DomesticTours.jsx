@@ -103,8 +103,8 @@ export default function DomesticToursPage() {
           {!loading && !error && filtered.length > 0 && (
             <div className="page-grid">
               {filtered.map((t, i) => (
-                    <article key={t._id} className="tour-card">
-                    <div className="tour-media">
+                <article key={t._id} className="tour-card">
+                  <div className="tour-media">
                     <img src={t.image} alt={t.title} loading="lazy" />
                     <div className="tour-shade" />
                     {t.region && <span className="tour-badge">{t.region}</span>}
