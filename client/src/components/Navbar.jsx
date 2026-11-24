@@ -90,8 +90,8 @@ export default function Navbar() {
             <button className="icon-btn" onClick={() => setDark(!dark)} aria-label="Toggle theme">
               {dark ? '☀' : '☾'}
             </button>
-            <a className="phone-link" href="tel:+923439343482">+92 343 934 3482</a>
-            <a className="wa-btn" href="https://wa.me/923439343482" target="_blank" rel="noreferrer">
+            <a className="phone-link" href="tel:+923119288821">+92 343 934 3482</a>
+            <a className="wa-btn" href="https://wa.me/923119288821" target="_blank" rel="noreferrer">
               <WaIcon /> <span>WhatsApp</span>
             </a>
           </div>
@@ -147,7 +147,7 @@ export default function Navbar() {
               ))}
             </ul>
             <div className="mob-sheet-foot">
-              <a className="mob-btn mob-btn-primary" href="https://wa.me/923439343482" target="_blank" rel="noreferrer">
+              <a className="mob-btn mob-btn-primary" href="https://wa.me/+923119288821" target="_blank" rel="noreferrer">
                 <WaIcon /> Chat on WhatsApp
               </a>
               <a className="mob-btn mob-btn-ghost" href="tel:+923439343482">📞 Call Now</a>

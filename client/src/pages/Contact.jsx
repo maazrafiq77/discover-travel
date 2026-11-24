@@ -156,8 +156,8 @@ export default function Contact() {
                 <div className="contact-info-list">
                   {[
                     { icon: '📍', label: 'Office', value: 'Deans Trade Center, Saddar Cantt, Peshawar', ur: 'ڈینز ٹریڈ سینٹر، صدر کینٹ، پشاور' },
-                    { icon: '📞', label: 'Phone', value: '+92 343 934 3482', href: 'tel:+923439343482' },
-                    { icon: '💬', label: 'WhatsApp', value: '+92 343 934 3482', href: 'https://wa.me/923439343482' },
+                    { icon: '📞', label: 'Phone', value: '+92 311 92 888 21', href: 'tel:+923439343482' },
+                    { icon: '💬', label: 'WhatsApp', value: '+92 311 92 888 21', href: 'https://wa.me/923119288821' },
                     { icon: '✉️', label: 'Email', value: 'discovertravel93@gmail.com', href: 'mailto:discovertravel93@gmail.com' },
                   ].map(c => (
                     <div key={c.label} className="contact-info-row">

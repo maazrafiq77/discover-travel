@@ -27,8 +27,8 @@ const cols = [
 
 const contact = [
   { icon: '📍', text: 'Deans Trade Center, Saddar Cantt, Peshawar' },
-  { icon: '📞', text: '+92 343 934 3482', href: 'tel:+923439343482' },
-  { icon: '💬', text: 'WhatsApp Us', href: 'https://wa.me/923439343482' },
+  { icon: '📞', text: '+92 311 92 888 21', href: 'tel:+923119288821' },
+  { icon: '💬', text: 'WhatsApp Us', href: 'https://wa.me/923119288821' },
   { icon: '✉️', text: 'discovertravel93@gmail.com', href: 'mailto:discovertravel93@gmail.com' },
 ]
 
