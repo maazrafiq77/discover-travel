@@ -80,9 +80,9 @@ Important rules:
       return res.status(400).json({ message: 'No valid messages found' })
     }
 
-    // Generate AI response using Gemini 1.5 Flash (Standard, non-streaming)
+    // Generate AI response using Gemini 2.5 Flash (Current supported model)
     const response = await client.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       contents,
       config: {
         systemInstruction: systemPrompt,
