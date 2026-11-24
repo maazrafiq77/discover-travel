@@ -23,7 +23,7 @@ router.get('/', auth, async (req, res) => {
   }
 })
 
-// Send message to AI (Streaming)
+// Send message to AI (Non-Streaming)
 router.post('/message', async (req, res) => {
   try {
     const { messages, sessionId } = req.body
@@ -80,16 +80,9 @@ Important rules:
       return res.status(400).json({ message: 'No valid messages found' })
     }
 
-    // Set headers for Server-Sent Events (SSE)
-    res.setHeader('Content-Type', 'text/event-stream')
-    res.setHeader('Cache-Control', 'no-cache')
-    res.setHeader('Connection', 'keep-alive')
-    res.setHeader('X-Accel-Buffering', 'no') // Crucial for Vercel
-    res.flushHeaders() // Force headers to send immediately
-
-    // Generate AI response using Gemini 2.0 Flash (Supports streaming with system instructions)
-    const stream = await client.models.generateContentStream({
-      model: 'gemini-2.0-flash',
+    // Generate AI response using Gemini 1.5 Flash (Standard, non-streaming)
+    const response = await client.models.generateContent({
+      model: 'gemini-1.5-flash',
       contents,
       config: {
         systemInstruction: systemPrompt,
@@ -97,43 +90,27 @@ Important rules:
       }
     })
 
-    let fullReply = ''
+    const reply = response.text
 
-    // Stream chunks to frontend
-    for await (const chunk of stream) {
-      const text = chunk.text
-      if (text) {
-        fullReply += text
-        res.write(`data: ${JSON.stringify({ text })}\n\n`)
-      }
-    }
-
-    // End the stream
-    res.write('data: [DONE]\n\n')
-    res.end()
-
-    // Save to database in the background (don't block the response)
+    // Update session if it exists
     if (sessionId) {
-      ChatSession.findByIdAndUpdate(sessionId, {
+      await ChatSession.findByIdAndUpdate(sessionId, {
         $push: {
           messages: {
             $each: [
               { role: 'user', content: messages[messages.length - 1].content },
-              { role: 'assistant', content: fullReply }
+              { role: 'assistant', content: reply }
             ]
           }
         }
-      }).catch(err => console.log('DB Save Error:', err.message))
+      })
     }
+
+    res.json({ reply })
 
   } catch (err) {
     console.error('Chat error:', err)
-    if (!res.headersSent) {
-      res.status(500).json({ message: 'Server error' })
-    } else {
-      res.write(`data: ${JSON.stringify({ text: '\n\nError connecting to AI.' })}\n\n`)
-      res.end()
-    }
+    res.status(500).json({ message: 'Server error' })
   }
 })
 
