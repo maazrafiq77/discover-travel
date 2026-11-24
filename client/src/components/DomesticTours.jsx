@@ -73,7 +73,7 @@ export default function DomesticTours() {
       </div>
 
       <style>{`
-        .tours-head{
+        .tours-head {
           display:flex; flex-direction:column; gap:16px;
           margin-bottom:28px;
         }
