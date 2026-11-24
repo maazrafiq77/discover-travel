@@ -184,7 +184,7 @@ export default function ChatBot() {
     if (customerInfo.phone) lines.push(`Phone: ${customerInfo.phone}`)
     if (lastUserMsg) lines.push(`Enquiry: ${lastUserMsg}`)
     window.open(
-      `https://wa.me/923439343482?text=${encodeURIComponent(lines.join('\n'))}`,
+      `https://wa.me/923119288821?text=${encodeURIComponent(lines.join('\n'))}`,
       '_blank'
     )
   }

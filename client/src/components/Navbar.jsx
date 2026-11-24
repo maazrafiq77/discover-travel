@@ -150,7 +150,7 @@ export default function Navbar() {
               <a className="mob-btn mob-btn-primary" href="https://wa.me/+923119288821" target="_blank" rel="noreferrer">
                 <WaIcon /> Chat on WhatsApp
               </a>
-              <a className="mob-btn mob-btn-ghost" href="tel:+923439343482">📞 Call Now</a>
+              <a className="mob-btn mob-btn-ghost" href="tel:+923119288821">📞 Call Now</a>
             </div>
           </div>
         </div>

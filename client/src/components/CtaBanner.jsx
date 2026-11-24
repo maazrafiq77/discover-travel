@@ -8,14 +8,14 @@ export default function CtaBanner() {
         </div>
         <div className="cta-actions">
           <a
-            href="https://wa.me/923439343482"
+            href="https://wa.me/923119288821"
             target="_blank"
             rel="noreferrer"
             className="cta-btn cta-primary"
           >
             💬 Chat on WhatsApp
           </a>
-          <a href="tel:+923439343482" className="cta-btn cta-ghost">
+          <a href="tel:+923119288821" className="cta-btn cta-ghost">
             📞 Call Us Now
           </a>
         </div>
