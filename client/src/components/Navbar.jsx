@@ -90,7 +90,7 @@ export default function Navbar() {
             <button className="icon-btn" onClick={() => setDark(!dark)} aria-label="Toggle theme">
               {dark ? '☀' : '☾'}
             </button>
-            <a className="phone-link" href="tel:+923119288821">+92 343 934 3482</a>
+            <a className="phone-link" href="tel:+923119288821">+92 311 92 88 21</a>
             <a className="wa-btn" href="https://wa.me/923119288821" target="_blank" rel="noreferrer">
               <WaIcon /> <span>WhatsApp</span>
             </a>
