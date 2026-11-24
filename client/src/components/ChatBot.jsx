@@ -131,7 +131,9 @@ export default function ChatBot() {
         body: JSON.stringify({ messages: newMessages, sessionId: currentSessionId })
       })
 
-      if (!response.ok) throw new Error('Network response was not ok')
+      if (!response.ok) {
+        throw new Error('Network response was not ok')
+      }
 
       const reader = response.body.getReader()
       const decoder = new TextDecoder('utf-8')
@@ -172,14 +174,15 @@ export default function ChatBot() {
       }
     } catch (err) {
       console.error('Chat error:', err)
-      setMessages((prev) => [
-        ...prev,
-        {
+      // Replace the empty streaming bubble with the error message
+      setMessages((prev) => {
+        const newArr = [...prev]
+        newArr[newArr.length - 1] = {
           role: 'assistant',
-          content:
-            "Sorry, I'm having trouble connecting. Please WhatsApp us directly at +92 343 934 3482.",
-        },
-      ])
+          content: "Sorry, I'm having trouble connecting. Please WhatsApp us directly at +92 343 934 3482."
+        }
+        return newArr
+      })
     } finally {
       setLoading(false)
     }

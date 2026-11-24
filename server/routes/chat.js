@@ -45,7 +45,6 @@ router.post('/message', async (req, res) => {
     ).join('\n')
 
     const systemPrompt = `You are a friendly and helpful travel assistant for Discover Travel & Tours, a travel agency based in Peshawar, Pakistan.
-
 Your job is to:
 1. Answer questions about tours, Hajj & Umrah, visas, flights and hotels.
 2. Collect customer information when they want to book.
@@ -66,8 +65,7 @@ Important rules:
 - Keep responses short and clear (2-4 sentences maximum).
 - Never invent package prices or booking details.
 - WhatsApp number: +92 343 934 3482.
-- Office: Deans Trade Center, Saddar Cantt, Peshawar.
-`
+- Office: Deans Trade Center, Saddar Cantt, Peshawar.`
 
     // Convert chat history into Gemini format
     const contents = messages
@@ -86,10 +84,12 @@ Important rules:
     res.setHeader('Content-Type', 'text/event-stream')
     res.setHeader('Cache-Control', 'no-cache')
     res.setHeader('Connection', 'keep-alive')
+    res.setHeader('X-Accel-Buffering', 'no') // Crucial for Vercel
+    res.flushHeaders() // Force headers to send immediately
 
-    // Generate AI response using Gemini 1.5 Flash (Fastest model)
+    // Generate AI response using Gemini 2.0 Flash (Supports streaming with system instructions)
     const stream = await client.models.generateContentStream({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       contents,
       config: {
         systemInstruction: systemPrompt,
